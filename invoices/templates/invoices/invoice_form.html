@@ -1,0 +1,189 @@
+{% extends 'invoices/base.html' %}
+
+{% block title %}{{ title }} - PreBuyPc Invoice System{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<form method="post" id="invoice-form">
+    {% csrf_token %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Invoice Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.client.label_tag }}
+                    {{ form.client }}
+                    {{ form.client.errors }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.currency.label_tag }}
+                    {{ form.currency }}
+                    {{ form.currency.errors }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form.date_issued.label_tag }}
+                    {{ form.date_issued }}
+                    {{ form.date_issued.errors }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.due_date.label_tag }}
+                    {{ form.due_date }}
+                    {{ form.due_date.errors }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.status.label_tag }}
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.tax_rate.label_tag }}
+                    {{ form.tax_rate }}
+                    {{ form.tax_rate.errors }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.discount.label_tag }}
+                    {{ form.discount }}
+                    {{ form.discount.errors }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    {{ form.notes.label_tag }}
+                    {{ form.notes }}
+                    {{ form.notes.errors }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Line Items</h5>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-item">Add Item</button>
+        </div>
+        <div class="card-body">
+            {{ formset.management_form }}
+            <div id="items-container">
+                {% for form in formset %}
+                <div class="item-form mb-3 p-3 border rounded">
+                    {% if form.instance.pk %}
+                        <input type="hidden" name="form-{{ forloop.counter0 }}-id" value="{{ form.instance.pk }}">
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.service_category.label_tag }}
+                            {{ form.service_category }}
+                            {{ form.service_category.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.detail_notes.label_tag }}
+                            {{ form.detail_notes }}
+                            {{ form.detail_notes.errors }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ form.quantity.label_tag }}
+                            {{ form.quantity }}
+                            {{ form.quantity.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.unit_price.label_tag }}
+                            {{ form.unit_price }}
+                            {{ form.unit_price.errors }}
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            {% if forloop.counter > 1 %}
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-item">Remove</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="form-{{ forloop.counter0 }}-DELETE" id="id_form-{{ forloop.counter0 }}-DELETE" value="false">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save Invoice</button>
+        <a href="{% url 'invoices:list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let itemCount = {{ formset.total_form_count }};
+
+    document.getElementById('add-item').addEventListener('click', function() {
+        const container = document.getElementById('items-container');
+        const newForm = createItemForm(itemCount);
+        container.appendChild(newForm);
+        itemCount++;
+        updateManagementForm();
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item')) {
+            const itemForm = e.target.closest('.item-form');
+            const deleteInput = itemForm.querySelector('input[type="hidden"][name*="-DELETE"]');
+            if (deleteInput) {
+                deleteInput.value = 'true';
+                itemForm.style.display = 'none';
+            } else {
+                itemForm.remove();
+            }
+        }
+    });
+
+    function createItemForm(index) {
+        const div = document.createElement('div');
+        div.className = 'item-form mb-3 p-3 border rounded';
+        div.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Service Category</label>
+                    <input type="text" name="form-${index}-service_category" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label>Detail Notes</label>
+                    <textarea name="form-${index}-detail_notes" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <label>Quantity</label>
+                    <input type="number" name="form-${index}-quantity" class="form-control" step="0.01" min="0" value="0">
+                </div>
+                <div class="col-md-4">
+                    <label>Unit Price</label>
+                    <input type="number" name="form-${index}-unit_price" class="form-control" step="0.01" min="0" value="0">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-item">Remove</button>
+                </div>
+            </div>
+            <input type="hidden" name="form-${index}-DELETE" value="false">
+        `;
+        return div;
+    }
+
+    function updateManagementForm() {
+        const managementForm = document.querySelector('[name="form-TOTAL_FORMS"]');
+        if (managementForm) {
+            managementForm.value = itemCount;
+        }
+    }
+});
+</script>
+{% endblock %}

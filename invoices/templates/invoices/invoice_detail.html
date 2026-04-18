@@ -1,0 +1,160 @@
+{% extends 'invoices/base.html' %}
+
+{% block title %}Invoice {{ invoice.invoice_number }} - PreBuyPc Invoice System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Invoice {{ invoice.invoice_number }}</h1>
+    <div>
+        <a href="{% url 'invoices:edit' invoice.pk %}" class="btn btn-primary">Edit</a>
+        <a href="{% url 'invoices:add_payment' invoice.pk %}" class="btn btn-success">Add Payment</a>
+        <a href="{% url 'invoices:public' invoice.public_token %}" class="btn btn-info" target="_blank">Public View</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Invoice Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Client:</strong> {{ invoice.client.name }}</p>
+                        <p><strong>Date Issued:</strong> {{ invoice.date_issued|date:"M d, Y" }}</p>
+                        <p><strong>Due Date:</strong> {{ invoice.due_date|date:"M d, Y"|default:"—" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong>
+                            <span class="status-badge status-{{ invoice.status }}">
+                                {{ invoice.get_status_display }}
+                            </span>
+                        </p>
+                        <p><strong>Currency:</strong> {{ invoice.currency }}</p>
+                        {% if invoice.paid_at %}
+                        <p><strong>Paid At:</strong> {{ invoice.paid_at|date:"M d, Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Line Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in invoice.items.all %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.service_category }}</strong>
+                                    {% if item.detail_notes %}
+                                    <br><small class="text-muted">{{ item.detail_notes }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ invoice.currency }} {{ item.unit_price|floatformat:2 }}</td>
+                                <td>{{ invoice.currency }} {{ item.total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if invoice.payments.exists %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Payments</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Reference</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in invoice.payments.all %}
+                            <tr>
+                                <td>{{ payment.created_at|date:"M d, Y" }}</td>
+                                <td>{{ payment.get_method_display }}</td>
+                                <td>{{ payment.reference|default:"—" }}</td>
+                                <td>{{ invoice.currency }} {{ payment.amount|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Totals</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <span>Subtotal:</span>
+                    <span>{{ invoice.currency }} {{ invoice.subtotal|floatformat:2 }}</span>
+                </div>
+                {% if invoice.discount %}
+                <div class="d-flex justify-content-between">
+                    <span>Discount:</span>
+                    <span>-{{ invoice.currency }} {{ invoice.discount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.tax_rate %}
+                <div class="d-flex justify-content-between">
+                    <span>Tax ({{ invoice.tax_rate }}%):</span>
+                    <span>{{ invoice.currency }} {{ invoice.tax_amount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                <hr>
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Grand Total:</span>
+                    <span>{{ invoice.currency }} {{ invoice.grand_total|floatformat:2 }}</span>
+                </div>
+                {% if invoice.balance_due > 0 %}
+                <hr>
+                <div class="d-flex justify-content-between text-danger fw-bold">
+                    <span>Balance Due:</span>
+                    <span>{{ invoice.currency }} {{ invoice.balance_due|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if invoice.notes %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Notes</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ invoice.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

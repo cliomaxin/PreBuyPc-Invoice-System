@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Invoice {{ invoice.invoice_number }} — PreBuyPc</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:        #1B4FD8;
+      --blue-light:  #EEF3FF;
+      --blue-mid:    #C7D7FA;
+      --black:       #0A0A0A;
+      --ink:         #1C1C1C;
+      --muted:       #6B7280;
+      --border:      #E4E7EC;
+      --white:       #FFFFFF;
+      --paid-bg:     #ECFDF5;
+      --paid-text:   #065F46;
+      --unpaid-bg:   #FFF7ED;
+      --unpaid-text: #92400E;
+      --over-bg:     #FEF2F2;
+      --over-text:   #991B1B;
+    }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: #F4F6FA;
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Action bar (hidden on print) ── */
+    .action-bar {
+      max-width: 860px;
+      margin: 0 auto 1.25rem;
+      display: flex;
+      gap: .75rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .55rem 1.15rem;
+      border-radius: 8px;
+      font-family: 'Sora', sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-primary   { background: var(--blue); color: var(--white); }
+    .btn-outline   { background: var(--white); color: var(--blue); border: 1.5px solid var(--blue); }
+    .btn-ghost     { background: var(--white); color: var(--muted); border: 1.5px solid var(--border); }
+
+    /* ── Invoice card ── */
+    .invoice-card {
+      max-width: 860px;
+      margin: 0 auto;
+      background: var(--white);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 32px rgba(0,0,0,.07);
+      overflow: hidden;
+    }
+
+    /* ── Header band ── */
+    .inv-header {
+      background: var(--black);
+      padding: 2rem 2.5rem 1.6rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-ring {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 2.5px solid var(--blue);
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-ring img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* Fallback initials if no logo image */
+    .logo-initials {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--blue);
+      letter-spacing: .04em;
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -.01em;
+    }
+
+    .brand-text p {
+      font-size: .75rem;
+      color: #9CA3AF;
+      margin-top: .15rem;
+      font-weight: 300;
+    }
+
+    .inv-meta-top {
+      text-align: right;
+    }
+
+    .inv-meta-top .inv-label {
+      font-size: .7rem;
+      font-weight: 500;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .inv-meta-top .inv-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: var(--white);
+      letter-spacing: .04em;
+      margin-top: .15rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-top: .6rem;
+      padding: .28rem .85rem;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .status-paid     { background: var(--paid-bg);   color: var(--paid-text); }
+    .status-unpaid,
+    .status-sent,
+    .status-draft    { background: var(--unpaid-bg); color: var(--unpaid-text); }
+    .status-overdue  { background: var(--over-bg);   color: var(--over-text); }
+    .status-cancelled{ background: #F3F4F6; color: #374151; }
+
+    /* ── Blue accent bar ── */
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue) 0%, #60A5FA 100%);
+    }
+
+    /* ── Body section ── */
+    .inv-body {
+      padding: 2rem 2.5rem;
+    }
+
+    /* ── Bill To / Invoice Details row ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 560px) {
+      .info-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+      .inv-header { padding: 1.5rem; }
+      .inv-body   { padding: 1.5rem; }
+    }
+
+    .info-block .section-label {
+      font-size: .68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--blue);
+      margin-bottom: .65rem;
+      padding-bottom: .4rem;
+      border-bottom: 1.5px solid var(--blue-mid);
+    }
+
+    .info-block .client-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--black);
+      margin-bottom: .2rem;
+    }
+
+    .info-block .client-company {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: .15rem;
+    }
+
+    .info-block .client-detail {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: .12rem;
+      line-height: 1.5;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: .42rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .82rem;
+    }
+    .meta-row:last-child { border-bottom: none; }
+    .meta-row .meta-key   { color: var(--muted); font-weight: 400; }
+    .meta-row .meta-val   { font-weight: 600; color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: .78rem; }
+    .meta-row .meta-val.due { color: #DC2626; }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.75rem 0;
+    }
+
+    /* ── Line items table ── */
+    .items-label {
+      font-size: .68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--blue);
+      margin-bottom: .85rem;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .items-table thead tr {
+      background: var(--blue-light);
+    }
+
+    .items-table thead th {
+      font-size: .7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--blue);
+      padding: .65rem .85rem;
+      text-align: left;
+      border-bottom: 2px solid var(--blue-mid);
+    }
+
+    .items-table thead th.right { text-align: right; }
+
+    .items-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .items-table tbody tr:last-child { border-bottom: none; }
+    .items-table tbody tr:hover { background: #FAFBFF; }
+
+    .items-table tbody td {
+      padding: .9rem .85rem;
+      vertical-align: top;
+      font-size: .83rem;
+    }
+
+    .item-category {
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: .35rem;
+      line-height: 1.3;
+    }
+
+    .item-notes {
+      font-size: .77rem;
+      color: var(--muted);
+      line-height: 1.55;
+      font-weight: 300;
+      padding-left: .75rem;
+      border-left: 2px solid var(--blue-mid);
+      margin-top: .3rem;
+    }
+
+    .items-table .qty-col,
+    .items-table .price-col,
+    .items-table .total-col {
+      text-align: right;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      color: var(--ink);
+    }
+
+    .items-table .qty-col { color: var(--muted); }
+
+    /* ── Totals ── */
+    .totals-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+
+    .totals-box {
+      width: 100%;
+      max-width: 320px;
+      background: var(--blue-light);
+      border-radius: 12px;
+      padding: 1.15rem 1.35rem;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .83rem;
+      padding: .35rem 0;
+      color: var(--muted);
+    }
+
+    .total-row .t-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .total-row.discount .t-val { color: #059669; }
+
+    .total-divider {
+      height: 1px;
+      background: var(--blue-mid);
+      margin: .55rem 0;
+    }
+
+    .total-row.grand {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--black);
+      padding-top: .45rem;
+    }
+
+    .total-row.grand .t-val {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    /* ── Payment history ── */
+    .payments-section {
+      margin-top: 2rem;
+    }
+
+    .payments-section .section-label {
+      font-size: .68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--blue);
+      margin-bottom: .75rem;
+      padding-bottom: .4rem;
+      border-bottom: 1.5px solid var(--blue-mid);
+    }
+
+    .payment-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+      padding: .65rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: .81rem;
+    }
+
+    .payment-row:last-child { border-bottom: none; }
+
+    .pay-left { display: flex; align-items: center; gap: .75rem; }
+
+    .pay-badge {
+      padding: .2rem .65rem;
+      border-radius: 20px;
+      font-size: .68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .pay-mpesa { background: #D1FAE5; color: #065F46; }
+    .pay-cash  { background: #FEF3C7; color: #92400E; }
+    .pay-bank  { background: #DBEAFE; color: #1E40AF; }
+
+    .pay-ref {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    .pay-date { font-size: .75rem; color: var(--muted); }
+
+    .pay-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: .85rem;
+      color: #059669;
+    }
+
+    /* ── Balance due alert ── */
+    .balance-due {
+      margin-top: 1rem;
+      padding: .75rem 1rem;
+      background: #FFF7ED;
+      border-left: 3px solid #F59E0B;
+      border-radius: 0 8px 8px 0;
+      font-size: .82rem;
+      color: #92400E;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .balance-due .b-label { font-weight: 500; }
+    .balance-due .b-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+
+    /* ── Notes / Terms ── */
+    .notes-section {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 560px) {
+      .notes-section { grid-template-columns: 1fr; }
+      .totals-box { max-width: 100%; }
+    }
+
+    .notes-block .section-label {
+      font-size: .68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--blue);
+      margin-bottom: .55rem;
+      padding-bottom: .35rem;
+      border-bottom: 1.5px solid var(--blue-mid);
+    }
+
+    .notes-block p {
+      font-size: .8rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── Signature ── */
+    .signature-block {
+      margin-top: .75rem;
+      padding-top: .75rem;
+    }
+
+    .sig-line {
+      width: 160px;
+      height: 1px;
+      background: var(--ink);
+      margin-bottom: .3rem;
+    }
+
+    .sig-name {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .sig-role {
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    /* ── Footer ── */
+    .inv-footer {
+      background: var(--black);
+      padding: 1.25rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+
+    .inv-footer p {
+      font-size: .72rem;
+      color: #6B7280;
+    }
+
+    .inv-footer .footer-brand {
+      font-size: .75rem;
+      font-weight: 600;
+      color: #9CA3AF;
+      letter-spacing: .03em;
+    }
+
+    .inv-footer .footer-brand span { color: var(--blue); }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: white; padding: 0; }
+      .action-bar { display: none !important; }
+      .invoice-card {
+        box-shadow: none;
+        border-radius: 0;
+        border: none;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Action Bar (hidden on print) -->
+  <div class="action-bar">
+    <button class="btn btn-ghost" onclick="history.back()">
+      ← Back
+    </button>
+    <a href="{% url 'invoices:edit' invoice.id %}" class="btn btn-outline">
+      ✏ Edit Invoice
+    </a>
+    <button class="btn btn-ghost" onclick="shareWhatsApp()">
+      ↗ WhatsApp
+    </button>
+    <button class="btn btn-ghost" onclick="window.print()">
+      ⎙ Print
+    </button>
+  </div>
+
+  <!-- Invoice Card -->
+  <div class="invoice-card">
+
+    <!-- Header -->
+    <div class="inv-header">
+      <div class="brand-block">
+        <div class="logo-ring">
+          {% if business.logo %}
+            <img src="{{ business.logo.url }}" alt="PreBuyPc Logo"/>
+          {% else %}
+            <span class="logo-initials">PBP</span>
+          {% endif %}
+        </div>
+        <div class="brand-text">
+          <h1>PreBuyPc</h1>
+          <p>PC &amp; Laptop Hardware Consultancy</p>
+        </div>
+      </div>
+
+      <div class="inv-meta-top">
+        <div class="inv-label">Invoice</div>
+        <div class="inv-number">{{ invoice.invoice_number }}</div>
+        <span class="status-badge status-{{ invoice.status }}">
+          {{ invoice.get_status_display }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Blue accent bar -->
+    <div class="accent-bar"></div>
+
+    <!-- Body -->
+    <div class="inv-body">
+
+      <!-- Bill To + Invoice Meta -->
+      <div class="info-grid">
+
+        <div class="info-block">
+          <div class="section-label">Bill To</div>
+          <div class="client-name">{{ invoice.client.name }}</div>
+          {% if invoice.client.company_name %}
+            <div class="client-company">{{ invoice.client.company_name }}</div>
+          {% endif %}
+          {% if invoice.client.billing_address %}
+            <div class="client-detail">{{ invoice.client.billing_address }}</div>
+          {% endif %}
+          {% if invoice.client.email %}
+            <div class="client-detail">{{ invoice.client.email }}</div>
+          {% endif %}
+          {% if invoice.client.phone %}
+            <div class="client-detail">{{ invoice.client.phone }}</div>
+          {% endif %}
+          {% if invoice.client.kra_pin %}
+            <div class="client-detail" style="margin-top:.35rem; font-size:.75rem; color:#9CA3AF;">
+              KRA PIN: {{ invoice.client.kra_pin }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="info-block">
+          <div class="section-label">Invoice Details</div>
+          <div class="meta-row">
+            <span class="meta-key">Invoice No.</span>
+            <span class="meta-val">{{ invoice.invoice_number }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Date Issued</span>
+            <span class="meta-val">{{ invoice.date_issued|date:"d M Y" }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Due Date</span>
+            <span class="meta-val {% if invoice.is_overdue %}due{% endif %}">
+              {{ invoice.due_date|date:"d M Y"|default:"—" }}
+            </span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-key">Currency</span>
+            <span class="meta-val">{{ invoice.currency }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Line Items -->
+      <div class="items-label">Services Rendered</div>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width:50%">Service</th>
+            <th class="right" style="width:10%">Qty</th>
+            <th class="right" style="width:20%">Unit Price</th>
+            <th class="right" style="width:20%">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in invoice.items.all %}
+          <tr>
+            <td>
+              <div class="item-category">{{ item.service_category }}</div>
+              {% if item.detail_notes %}
+                <div class="item-notes">{{ item.detail_notes }}</div>
+              {% endif %}
+            </td>
+            <td class="qty-col">{{ item.quantity }}</td>
+            <td class="price-col">
+              {{ invoice.currency }} {{ item.unit_price|floatformat:2 }}
+            </td>
+            <td class="total-col">
+              {{ invoice.currency }} {{ item.total|floatformat:2 }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Totals -->
+      <div class="totals-wrap">
+        <div class="totals-box">
+
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span class="t-val">{{ invoice.currency }} {{ invoice.subtotal|floatformat:2 }}</span>
+          </div>
+
+          {% if invoice.discount %}
+          <div class="total-row discount">
+            <span>Discount</span>
+            <span class="t-val">− {{ invoice.currency }} {{ invoice.discount|floatformat:2 }}</span>
+          </div>
+          {% endif %}
+
+          {% if invoice.tax_rate %}
+          <div class="total-row">
+            <span>Tax ({{ invoice.tax_rate }}%)</span>
+            <span class="t-val">{{ invoice.currency }} {{ invoice.tax_amount|floatformat:2 }}</span>
+          </div>
+          {% endif %}
+
+          <div class="total-divider"></div>
+
+          <div class="total-row grand">
+            <span>Grand Total</span>
+            <span class="t-val">{{ invoice.currency }} {{ invoice.grand_total|floatformat:2 }}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Payments Section -->
+      {% if invoice.payments.exists %}
+      <div class="payments-section">
+        <div class="section-label">Payments Received</div>
+
+        {% for payment in invoice.payments.all %}
+        <div class="payment-row">
+          <div class="pay-left">
+            <span class="pay-badge pay-{{ payment.method }}">{{ payment.get_method_display }}</span>
+            {% if payment.reference %}
+              <span class="pay-ref">Ref: {{ payment.reference }}</span>
+            {% endif %}
+            <span class="pay-date">{{ payment.created_at|date:"d M Y" }}</span>
+          </div>
+          <span class="pay-amount">+ {{ invoice.currency }} {{ payment.amount|floatformat:2 }}</span>
+        </div>
+        {% endfor %}
+
+        {% if invoice.balance_due > 0 %}
+        <div class="balance-due">
+          <span class="b-label">Balance Due</span>
+          <span class="b-val">{{ invoice.currency }} {{ invoice.balance_due|floatformat:2 }}</span>
+        </div>
+        {% endif %}
+
+      </div>
+      {% endif %}
+
+      <!-- Notes & Terms -->
+      <div class="notes-section">
+
+        {% if invoice.notes %}
+        <div class="notes-block">
+          <div class="section-label">Notes</div>
+          <p>{{ invoice.notes }}</p>
+        </div>
+        {% endif %}
+
+        <div class="notes-block">
+          <div class="section-label">Terms &amp; Conditions</div>
+          <p>
+            {% if business.terms %}
+              {{ business.terms }}
+            {% else %}
+              Payment is due within the period stated above. For M-Pesa payments,
+              send to the number provided and forward the confirmation SMS.
+              Thank you for choosing PreBuyPc.
+            {% endif %}
+          </p>
+          <div class="signature-block">
+            <div class="sig-line"></div>
+            <div class="sig-name">
+              {% if business.owner_name %}{{ business.owner_name }}{% else %}Authorised Signatory{% endif %}
+            </div>
+            <div class="sig-role">PreBuyPc Consultancy</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /inv-body -->
+
+    <!-- Footer -->
+    <div class="inv-footer">
+      <p>Generated by <span style="color:#9CA3AF; font-weight:600;">PreBuyPc</span> Invoice System</p>
+      <div class="footer-brand">Pre<span>Buy</span>Pc &middot; {{ business.email|default:"hello@prebuypc.com" }}</div>
+    </div>
+
+  </div><!-- /invoice-card -->
+
+  <script>
+    function shareWhatsApp() {
+      const invoiceUrl = window.location.href;
+      const message = encodeURIComponent(
+        "Hello, please find your invoice here: " + invoiceUrl
+      );
+      window.open("https://wa.me/?text=" + message, "_blank");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends 'invoices/base.html' %}
+
+{% block title %}Add Payment - Invoice {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<h1>Add Payment to Invoice {{ invoice.invoice_number }}</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>Payment Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.amount.label_tag }}
+                            {{ form.amount }}
+                            {{ form.amount.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.method.label_tag }}
+                            {{ form.method }}
+                            {{ form.method.errors }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.reference.label_tag }}
+                            {{ form.reference }}
+                            {{ form.reference.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.phone.label_tag }}
+                            {{ form.phone }}
+                            {{ form.phone.errors }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">Add Payment</button>
+                <a href="{% url 'invoices:detail' invoice.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Invoice Summary</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Client:</strong> {{ invoice.client.name }}</p>
+                <p><strong>Total:</strong> {{ invoice.currency }} {{ invoice.grand_total|floatformat:2 }}</p>
+                {% if invoice.balance_due > 0 %}
+                <p><strong>Balance Due:</strong> {{ invoice.currency }} {{ invoice.balance_due|floatformat:2 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

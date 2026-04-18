@@ -1,0 +1,71 @@
+{% extends 'invoices/base.html' %}
+
+{% block title %}Dashboard - PreBuyPc Invoice System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ total_invoices }}</h5>
+                <p class="card-text">Total Invoices</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ total_paid }}</h5>
+                <p class="card-text">Paid Invoices</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ total_overdue }}</h5>
+                <p class="card-text">Overdue Invoices</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ total_clients }}</h5>
+                <p class="card-text">Total Clients</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Revenue</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="text-success">KES {{ total_revenue|floatformat:2 }}</h3>
+                <p class="text-muted">Total from paid invoices</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'invoices:create' %}" class="btn btn-primary me-2">Create Invoice</a>
+                <a href="{% url 'invoices:client_create' %}" class="btn btn-secondary">Add Client</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
