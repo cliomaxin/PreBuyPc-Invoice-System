@@ -93,10 +93,21 @@ class Invoice(models.Model):
 
 
 class InvoiceItem(models.Model):
+    SERVICE_CATEGORY_CHOICES = [
+        ('pc_hardware', 'PC Hardware'),
+        ('component_sourcing', 'Component Sourcing'),
+        ('pc_build', 'Complete PC Build'),
+        ('software_installation', 'Software Installation'),
+        ('consultation', 'PC Consultation'),
+        ('maintenance', 'PC Maintenance'),
+        ('upgrades', 'PC Upgrades'),
+        ('other', 'Other'),
+    ]
+
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items')
-    service_category = models.CharField(max_length=255)
+    service_category = models.CharField(max_length=255, choices=SERVICE_CATEGORY_CHOICES, default='pc_hardware')
     detail_notes = models.TextField(blank=True)
-    quantity = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0.01)])
+    quantity = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0)])
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 

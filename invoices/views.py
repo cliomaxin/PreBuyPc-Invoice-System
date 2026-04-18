@@ -94,13 +94,21 @@ def invoice_create(request):
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
                 invoice = form.save()
-                # Save only items that have data
+                # Save only items that have meaningful data
                 for form in formset:
                     if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
-                        # Check if at least one field is filled
-                        if (form.cleaned_data.get('service_category') or 
-                            form.cleaned_data.get('quantity') or 
-                            form.cleaned_data.get('unit_price')):
+                        service_category = form.cleaned_data.get('service_category')
+                        quantity = form.cleaned_data.get('quantity')
+                        unit_price = form.cleaned_data.get('unit_price')
+                        
+                        # Only save if ALL required fields have meaningful values
+                        # service_category must not be empty/None and not the default option
+                        # quantity must be a number > 0
+                        # unit_price must be a number >= 0
+                        if (service_category and 
+                            str(service_category).strip() not in ['', 'None', '-- Select Category --'] and
+                            quantity is not None and quantity > 0 and
+                            unit_price is not None and unit_price >= 0):
                             item = form.save(commit=False)
                             item.invoice = invoice
                             item.save()
@@ -140,15 +148,19 @@ def invoice_edit(request, pk):
                         if form.cleaned_data.get('DELETE', False):
                             if form.instance.pk:
                                 form.instance.delete()
-                        elif (form.cleaned_data.get('service_category') or 
-                              form.cleaned_data.get('quantity') or 
-                              form.cleaned_data.get('unit_price')):
-                            item = form.save(commit=False)
-                            item.invoice = invoice
-                            item.save()
-                        elif form.instance.pk:
-                            # Existing item now empty, delete it
-                            form.instance.delete()
+                        else:
+                            if form.cleaned_data.get('DELETE', False):
+                                if form.instance.pk:
+                                    form.instance.delete()
+                            elif (form.cleaned_data.get('service_category') or 
+                                  form.cleaned_data.get('quantity') or 
+                                  form.cleaned_data.get('unit_price')):
+                                item = form.save(commit=False)
+                                item.invoice = invoice
+                                item.save()
+                            elif form.instance.pk:
+                                # Existing item now empty, delete it
+                                form.instance.delete()
                 messages.success(request, f'Invoice {invoice.invoice_number} updated successfully.')
                 return redirect('invoices:detail', pk=invoice.pk)
     else:

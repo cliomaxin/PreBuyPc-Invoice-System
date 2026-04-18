@@ -153,7 +153,17 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="row">
                 <div class="col-md-6">
                     <label>Service Category</label>
-                    <input type="text" name="form-${index}-service_category" class="form-control">
+                    <select name="form-${index}-service_category" class="form-control">
+                        <option value="">-- Select Category --</option>
+                        <option value="pc_hardware">PC Hardware</option>
+                        <option value="component_sourcing">Component Sourcing</option>
+                        <option value="complete_pc_build">Complete PC Build</option>
+                        <option value="software_installation">Software Installation</option>
+                        <option value="pc_consultation">PC Consultation</option>
+                        <option value="pc_maintenance">PC Maintenance</option>
+                        <option value="pc_upgrades">PC Upgrades</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label>Detail Notes</label>

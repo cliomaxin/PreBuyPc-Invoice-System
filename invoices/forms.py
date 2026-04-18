@@ -25,6 +25,8 @@ class InvoiceForm(forms.ModelForm):
 
 
 class InvoiceItemForm(forms.ModelForm):
+    service_category = forms.ChoiceField(choices=[('', '-- Select Category --')] + list(InvoiceItem.SERVICE_CATEGORY_CHOICES), required=False)
+
     class Meta:
         model = InvoiceItem
         fields = ['service_category', 'detail_notes', 'quantity', 'unit_price']
@@ -35,7 +37,6 @@ class InvoiceItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make fields not required
-        self.fields['service_category'].required = False
         self.fields['quantity'].required = False
         self.fields['unit_price'].required = False
         # Set initial values
