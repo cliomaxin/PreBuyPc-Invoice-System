@@ -6,6 +6,8 @@ from django.urls import reverse
 from .models import Client, Invoice, InvoiceItem, Payment
 from .forms import InvoiceForm, InvoiceItemFormSet, PaymentForm, ClientForm
 from django.forms import modelformset_factory
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 
 def invoice_list(request):
@@ -37,8 +39,8 @@ def invoice_public(request, token):
     # Mock business data for template
     business = {
         'name': 'PreBuyPc',
-        'email': 'hello@prebuypc.com',
-        'logo': None,
+        'email': 'maxipytech@gmail.com',
+        'logo': '/static/prebuypc%20logo%20rounded.png',
         'terms': None,
         'owner_name': 'Authorised Signatory'
     }
@@ -47,6 +49,40 @@ def invoice_public(request, token):
         'invoice': invoice,
         'business': business
     })
+
+
+def invoice_pdf(request, token):
+    """Generate PDF for public invoice"""
+    from xhtml2pdf import pisa
+
+    invoice = get_object_or_404(
+        Invoice.objects.select_related('client').prefetch_related('items', 'payments'),
+        public_token=token, is_active=True
+    )
+
+    # Mock business data for template
+    business = {
+        'name': 'PreBuyPc',
+        'email': 'maxipytech@gmail.com',
+        'logo': '/static/prebuypc%20logo%20rounded.png',
+        'terms': None,
+        'owner_name': 'Authorised Signatory'
+    }
+
+    # Render HTML to string
+    html_string = render_to_string('Invoice/invoice_detail.html', {
+        'invoice': invoice,
+        'business': business
+    })
+
+    # Create response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
+
+    # Generate PDF
+    pisa.CreatePDF(html_string, dest=response)
+
+    return response
 
 
 def invoice_create(request):
@@ -93,7 +129,7 @@ def invoice_edit(request, pk):
 
     if request.method == 'POST':
         form = InvoiceForm(request.POST, instance=invoice)
-        formset = InvoiceItemFormSet(request.POST, instance=invoice)
+        formset = InvoiceItemFormSet(request.POST, queryset=invoice.items.all())
 
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
@@ -117,7 +153,7 @@ def invoice_edit(request, pk):
                 return redirect('invoices:detail', pk=invoice.pk)
     else:
         form = InvoiceForm(instance=invoice)
-        formset = InvoiceItemFormSet(instance=invoice)
+        formset = InvoiceItemFormSet(queryset=invoice.items.all())
 
     return render(request, 'invoices/invoice_form.html', {
         'form': form,

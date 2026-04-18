@@ -28,7 +28,7 @@
     body {
       font-family: 'Sora', sans-serif;
       background: #F4F6FA;
-      color: var(--ink);
+      color: #1C1C1C;
       min-height: 100vh;
       padding: 2rem 1rem;
     }
@@ -58,24 +58,24 @@
       transition: opacity .15s, transform .1s;
     }
     .btn:hover { opacity: .88; transform: translateY(-1px); }
-    .btn-primary   { background: var(--blue); color: var(--white); }
-    .btn-outline   { background: var(--white); color: var(--blue); border: 1.5px solid var(--blue); }
-    .btn-ghost     { background: var(--white); color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-primary   { background: #1B4FD8; color: #FFFFFF; }
+    .btn-outline   { background: #FFFFFF; color: #1B4FD8; border: 1.5px solid #1B4FD8; }
+    .btn-ghost     { background: #FFFFFF; color: #6B7280; border: 1.5px solid #E4E7EC; }
 
     /* ── Invoice card ── */
     .invoice-card {
       max-width: 860px;
       margin: 0 auto;
-      background: var(--white);
+      background: #FFFFFF;
       border-radius: 16px;
-      border: 1px solid var(--border);
+      border: 1px solid #E4E7EC;
       box-shadow: 0 4px 32px rgba(0,0,0,.07);
       overflow: hidden;
     }
 
     /* ── Header band ── */
     .inv-header {
-      background: var(--black);
+      background: #0A0A0A;
       padding: 2rem 2.5rem 1.6rem;
       display: flex;
       align-items: flex-start;
@@ -94,10 +94,10 @@
       width: 54px;
       height: 54px;
       border-radius: 50%;
-      border: 2.5px solid var(--blue);
+      border: 2.5px solid #1B4FD8;
       overflow: hidden;
       flex-shrink: 0;
-      background: var(--white);
+      background: #FFFFFF;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -115,14 +115,14 @@
       font-family: 'Sora', sans-serif;
       font-weight: 700;
       font-size: .95rem;
-      color: var(--blue);
+      color: #1B4FD8;
       letter-spacing: .04em;
     }
 
     .brand-text h1 {
       font-size: 1.25rem;
       font-weight: 700;
-      color: var(--white);
+      color: #FFFFFF;
       letter-spacing: -.01em;
     }
 
@@ -149,7 +149,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 1.35rem;
       font-weight: 500;
-      color: var(--white);
+      color: #FFFFFF;
       letter-spacing: .04em;
       margin-top: .15rem;
     }
@@ -164,17 +164,17 @@
       letter-spacing: .06em;
       text-transform: uppercase;
     }
-    .status-paid     { background: var(--paid-bg);   color: var(--paid-text); }
+    .status-paid     { background: #ECFDF5;   color: #065F46; }
     .status-unpaid,
     .status-sent,
-    .status-draft    { background: var(--unpaid-bg); color: var(--unpaid-text); }
-    .status-overdue  { background: var(--over-bg);   color: var(--over-text); }
+    .status-draft    { background: #FFF7ED; color: #92400E; }
+    .status-overdue  { background: #FEF2F2;   color: #991B1B; }
     .status-cancelled{ background: #F3F4F6; color: #374151; }
 
     /* ── Blue accent bar ── */
     .accent-bar {
       height: 4px;
-      background: linear-gradient(90deg, var(--blue) 0%, #60A5FA 100%);
+      background: linear-gradient(90deg, #1B4FD8 0%, #60A5FA 100%);
     }
 
     /* ── Body section ── */
@@ -201,28 +201,28 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .1em;
-      color: var(--blue);
+      color: #1B4FD8;
       margin-bottom: .65rem;
       padding-bottom: .4rem;
-      border-bottom: 1.5px solid var(--blue-mid);
+      border-bottom: 1.5px solid #C7D7FA;
     }
 
     .info-block .client-name {
       font-size: 1rem;
       font-weight: 600;
-      color: var(--black);
+      color: #0A0A0A;
       margin-bottom: .2rem;
     }
 
     .info-block .client-company {
       font-size: .82rem;
-      color: var(--muted);
+      color: #6B7280;
       margin-bottom: .15rem;
     }
 
     .info-block .client-detail {
       font-size: .8rem;
-      color: var(--muted);
+      color: #6B7280;
       margin-bottom: .12rem;
       line-height: 1.5;
     }
@@ -232,18 +232,18 @@
       justify-content: space-between;
       align-items: baseline;
       padding: .42rem 0;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #E4E7EC;
       font-size: .82rem;
     }
     .meta-row:last-child { border-bottom: none; }
-    .meta-row .meta-key   { color: var(--muted); font-weight: 400; }
-    .meta-row .meta-val   { font-weight: 600; color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: .78rem; }
+    .meta-row .meta-key   { color: #6B7280; font-weight: 400; }
+    .meta-row .meta-val   { font-weight: 600; color: #1C1C1C; font-family: 'JetBrains Mono', monospace; font-size: .78rem; }
     .meta-row .meta-val.due { color: #DC2626; }
 
     /* ── Divider ── */
     .divider {
       height: 1px;
-      background: var(--border);
+      background: #E4E7EC;
       margin: 1.75rem 0;
     }
 
@@ -253,7 +253,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .1em;
-      color: var(--blue);
+      color: #1B4FD8;
       margin-bottom: .85rem;
     }
 
@@ -263,7 +263,7 @@
     }
 
     .items-table thead tr {
-      background: var(--blue-light);
+      background: #EEF3FF;
     }
 
     .items-table thead th {
@@ -271,16 +271,16 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .08em;
-      color: var(--blue);
+      color: #1B4FD8;
       padding: .65rem .85rem;
       text-align: left;
-      border-bottom: 2px solid var(--blue-mid);
+      border-bottom: 2px solid #C7D7FA;
     }
 
     .items-table thead th.right { text-align: right; }
 
     .items-table tbody tr {
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #E4E7EC;
       transition: background .12s;
     }
 
@@ -295,18 +295,18 @@
 
     .item-category {
       font-weight: 600;
-      color: var(--ink);
+      color: #1C1C1C;
       margin-bottom: .35rem;
       line-height: 1.3;
     }
 
     .item-notes {
       font-size: .77rem;
-      color: var(--muted);
+      color: #6B7280;
       line-height: 1.55;
       font-weight: 300;
       padding-left: .75rem;
-      border-left: 2px solid var(--blue-mid);
+      border-left: 2px solid #C7D7FA;
       margin-top: .3rem;
     }
 
@@ -317,10 +317,10 @@
       white-space: nowrap;
       font-family: 'JetBrains Mono', monospace;
       font-size: .8rem;
-      color: var(--ink);
+      color: #1C1C1C;
     }
 
-    .items-table .qty-col { color: var(--muted); }
+    .items-table .qty-col { color: #6B7280; }
 
     /* ── Totals ── */
     .totals-wrap {
@@ -332,7 +332,7 @@
     .totals-box {
       width: 100%;
       max-width: 320px;
-      background: var(--blue-light);
+      background: #EEF3FF;
       border-radius: 12px;
       padding: 1.15rem 1.35rem;
     }
@@ -343,35 +343,35 @@
       align-items: center;
       font-size: .83rem;
       padding: .35rem 0;
-      color: var(--muted);
+      color: #6B7280;
     }
 
     .total-row .t-val {
       font-family: 'JetBrains Mono', monospace;
       font-size: .8rem;
       font-weight: 500;
-      color: var(--ink);
+      color: #1C1C1C;
     }
 
     .total-row.discount .t-val { color: #059669; }
 
     .total-divider {
       height: 1px;
-      background: var(--blue-mid);
+      background: #C7D7FA;
       margin: .55rem 0;
     }
 
     .total-row.grand {
       font-size: .95rem;
       font-weight: 700;
-      color: var(--black);
+      color: #0A0A0A;
       padding-top: .45rem;
     }
 
     .total-row.grand .t-val {
       font-size: .95rem;
       font-weight: 700;
-      color: var(--blue);
+      color: #1B4FD8;
     }
 
     /* ── Payment history ── */
@@ -384,10 +384,10 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .1em;
-      color: var(--blue);
+      color: #1B4FD8;
       margin-bottom: .75rem;
       padding-bottom: .4rem;
-      border-bottom: 1.5px solid var(--blue-mid);
+      border-bottom: 1.5px solid #C7D7FA;
     }
 
     .payment-row {
@@ -397,7 +397,7 @@
       flex-wrap: wrap;
       gap: .5rem;
       padding: .65rem 0;
-      border-bottom: 1px dashed var(--border);
+      border-bottom: 1px dashed #E4E7EC;
       font-size: .81rem;
     }
 
@@ -420,10 +420,10 @@
     .pay-ref {
       font-family: 'JetBrains Mono', monospace;
       font-size: .75rem;
-      color: var(--muted);
+      color: #6B7280;
     }
 
-    .pay-date { font-size: .75rem; color: var(--muted); }
+    .pay-date { font-size: .75rem; color: #6B7280; }
 
     .pay-amount {
       font-family: 'JetBrains Mono', monospace;
@@ -471,15 +471,15 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .1em;
-      color: var(--blue);
+      color: #1B4FD8;
       margin-bottom: .55rem;
       padding-bottom: .35rem;
-      border-bottom: 1.5px solid var(--blue-mid);
+      border-bottom: 1.5px solid #C7D7FA;
     }
 
     .notes-block p {
       font-size: .8rem;
-      color: var(--muted);
+      color: #6B7280;
       line-height: 1.65;
     }
 
@@ -492,24 +492,24 @@
     .sig-line {
       width: 160px;
       height: 1px;
-      background: var(--ink);
+      background: #1C1C1C;
       margin-bottom: .3rem;
     }
 
     .sig-name {
       font-size: .78rem;
       font-weight: 600;
-      color: var(--ink);
+      color: #1C1C1C;
     }
 
     .sig-role {
       font-size: .72rem;
-      color: var(--muted);
+      color: #6B7280;
     }
 
     /* ── Footer ── */
     .inv-footer {
-      background: var(--black);
+      background: #0A0A0A;
       padding: 1.25rem 2.5rem;
       display: flex;
       align-items: center;
@@ -530,7 +530,7 @@
       letter-spacing: .03em;
     }
 
-    .inv-footer .footer-brand span { color: var(--blue); }
+    .inv-footer .footer-brand span { color: #1B4FD8; }
 
     /* ── Print styles ── */
     @media print {
@@ -561,6 +561,9 @@
     <button class="btn btn-ghost" onclick="window.print()">
       ⎙ Print
     </button>
+    <a href="{% url 'invoices:pdf' invoice.public_token %}" class="btn btn-primary">
+      ↓ Download PDF
+    </a>
   </div>
 
   <!-- Invoice Card -->
@@ -571,7 +574,7 @@
       <div class="brand-block">
         <div class="logo-ring">
           {% if business.logo %}
-            <img src="{{ business.logo.url }}" alt="PreBuyPc Logo"/>
+            <img src="{{ business.logo }}" alt="PreBuyPc Logo"/>
           {% else %}
             <span class="logo-initials">PBP</span>
           {% endif %}
@@ -778,7 +781,7 @@
     <!-- Footer -->
     <div class="inv-footer">
       <p>Generated by <span style="color:#9CA3AF; font-weight:600;">PreBuyPc</span> Invoice System</p>
-      <div class="footer-brand">Pre<span>Buy</span>Pc &middot; {{ business.email|default:"hello@prebuypc.com" }}</div>
+      <div class="footer-brand">Pre<span>Buy</span>Pc &middot; {{ business.email|default:"maxipytech@gmail.com" }}</div>
     </div>
 
   </div><!-- /invoice-card -->

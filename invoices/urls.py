@@ -17,6 +17,7 @@ urlpatterns = [
 
     # Public invoice view
     path('invoice/<uuid:token>/', views.invoice_public, name='public'),
+    path('invoice/<uuid:token>/pdf/', views.invoice_pdf, name='pdf'),
 
     # Clients
     path('clients/', views.client_list, name='client_list'),
